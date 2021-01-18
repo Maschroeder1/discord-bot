@@ -1,5 +1,6 @@
 import random
 
+
 class Card:
     def __init__(self):
         self.value = -1
@@ -14,7 +15,15 @@ class Card:
 
             return names[self.value-1]
         
-        raise Exception('Cant stringify unset value')
+        raise Exception('temp exeption')
 
     def __repr__(self):
         return self.__str__()
+
+
+def draw():
+    card = Card()
+
+    card.draw()
+
+    return card

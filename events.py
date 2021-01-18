@@ -1,9 +1,10 @@
 import discord
 from commands import Commands
 
-#todo: add moderation
+# todo: add moderation
 
 COMMAND = 'hey bot '
+
 
 class Events:
     def __init__(self, token):
@@ -13,7 +14,6 @@ class Events:
         self.declare_events()
         self.commands = Commands()
         self.client.run(token)
-
 
     def declare_events(self):
         @self.client.event
