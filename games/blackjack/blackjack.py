@@ -1,8 +1,7 @@
 import time
-from .player import Player, calculate_points
+from .player import Player
 from .dealer import Dealer
 
-# todo: deal with up to N aces
 # todo: deck system
 
 TIMEOUT = 300
@@ -38,7 +37,7 @@ class Blackjack:
         await self.post_player_gamestate(player_name, msg)
 
         if self.has_playable_game(player_name):
-            await dealer.play_turn(msg, {'points': calculate_points(dealer.get_cards())})
+            await dealer.play_turn(msg, misc)
             await self.post_dealer_gamestate(player_name, msg)
             if self.game_should_end(player_name):
                 await self.declare_winner(player, dealer, msg)
@@ -55,23 +54,21 @@ class Blackjack:
 
     async def post_player_gamestate(self, player_name, msg):
         player = self.players[player_name]
-        player_points = calculate_points(player.get_cards())
-        player_state = player.build_message(player_points)
+        player_state = player.build_message()
 
         await msg.channel.send(player_state)
 
-        if player_points > 21:
+        if player.busted():
             await msg.channel.send(f'@{player_name} busted! Dealer wins!')
             self.end_game(player_name)
 
     async def post_dealer_gamestate(self, player, msg):
         dealer = self.dealers[player]
-        dealer_points = calculate_points(dealer.get_cards())
-        dealer_state = dealer.build_message(dealer_points)
+        dealer_state = dealer.build_message()
 
         await msg.channel.send(dealer_state)
 
-        if dealer_points > 21:
+        if dealer.busted():
             await msg.channel.send(f"Dealer busted! @{player} wins!")
             self.end_game(player)
 
@@ -79,8 +76,8 @@ class Blackjack:
         return self.has_playable_game(player_name) and self.players[player_name].is_finished()
 
     async def declare_winner(self, player, dealer, msg):
-        player_points = calculate_points(player.get_cards())
-        dealer_points = calculate_points(dealer.get_cards())
+        player_points = max([x for x in player.get_points() if x <= 21])
+        dealer_points = max([x for x in dealer.get_points() if x <= 21])
 
         if player_points > dealer_points:
             await msg.channel.send(f"@{player.get_name()} wins with {player_points} points!")

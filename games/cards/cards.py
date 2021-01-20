@@ -9,12 +9,18 @@ class Card:
         if self.value == -1:
             self.value = random.randint(1, 12)
 
+    def is_ace(self):
+        return self.value == 1
+
+    def is_face(self):
+        return self.value > 10
+
     def __str__(self):
         if self.value != -1:
             names = ['ACE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'JACK', 'QUEEN', 'KING']
 
             return names[self.value-1]
-        
+
         raise Exception('temp exeption')
 
     def __repr__(self):

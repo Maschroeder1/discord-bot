@@ -1,17 +1,17 @@
-from .player import Player, calculate_points
+from .player import Player
 
 
 class Dealer(Player):
     async def play_turn(self, msg, misc):
-        points = misc['points']
+        points = self.get_points()
 
-        while points < 17:
+        while max(points) < 17:
             self.draw_card()
             await msg.channel.send(f"@{self._name}'s dealer drew a {self._cards[-1]}")
-            points = calculate_points(self.get_cards())
+            points = self.get_points()
 
         await msg.channel.send(f"@{self._name}'s dealer stood")
         self._is_finished = True
 
-    def build_message(self, points):
-        return f"@{self._name}'s dealer has {self._cards}, with a sum of {points}"
+    def build_message(self):
+        return f"@{self._name}'s dealer has {self._cards}, with a sum of {max(self.get_points())}"
