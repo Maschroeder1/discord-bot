@@ -1,24 +1,11 @@
 import time
-from .player import Player
+from .player import Player, calculate_points
 from .dealer import Dealer
 
-# todo: finish games
 # todo: deal with up to N aces
 # todo: deck system
 
 TIMEOUT = 300
-
-
-def calculate_points(cards):  # this smells, not sure where to put it though
-    points = 0
-
-    for card in cards:
-        if card.value < 10:
-            points += card.value
-        else:
-            points += 10
-
-    return points
 
 
 class Blackjack:
@@ -29,7 +16,11 @@ class Blackjack:
 
     async def play(self, msg, args):
         player = msg.author
-        misc = {'command': args[0]}
+
+        if len(args) > 0:
+            misc = {'command': args[0]}
+        else:
+            misc = dict()
 
         if self.has_playable_game(player):
             await self.continue_game(player, msg, misc)
@@ -49,6 +40,8 @@ class Blackjack:
         if self.has_playable_game(player_name):
             await dealer.play_turn(msg, {'points': calculate_points(dealer.get_cards())})
             await self.post_dealer_gamestate(player_name, msg)
+            if self.game_should_end(player_name):
+                await self.declare_winner(player, dealer, msg)
 
     async def new_game(self, player, msg):
         await msg.channel.send(f'Starting new game for player {player}')
@@ -81,6 +74,22 @@ class Blackjack:
         if dealer_points > 21:
             await msg.channel.send(f"Dealer busted! @{player} wins!")
             self.end_game(player)
+
+    def game_should_end(self, player_name):
+        return self.has_playable_game(player_name) and self.players[player_name].is_finished()
+
+    async def declare_winner(self, player, dealer, msg):
+        player_points = calculate_points(player.get_cards())
+        dealer_points = calculate_points(dealer.get_cards())
+
+        if player_points > dealer_points:
+            await msg.channel.send(f"@{player.get_name()} wins with {player_points} points!")
+        elif dealer_points > player_points:
+            await msg.channel.send(f"@{player.get_name()}'s dealer wins with {dealer_points} points!")
+        else:
+            await msg.channel.send(f"@{player.get_name()} and the dealer tied with {player_points} points!")
+
+        self.end_game(player.get_name())
 
     def end_game(self, player):
         del self.users_timeout[player]

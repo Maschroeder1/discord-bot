@@ -18,7 +18,7 @@ class Events:
     def declare_events(self):
         @self.client.event
         async def on_ready():
-            print('{0.user} is ready'.format(self.client))
+            print(f'{self.client.user} is ready')
 
         @self.client.event
         async def on_message(msg):

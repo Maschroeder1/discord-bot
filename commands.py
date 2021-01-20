@@ -17,8 +17,6 @@ class Commands:
             await self.play_game(command_as_array[1:], msg)
         else:
             await msg.channel.send("Unknown command")
-        
-        print(command_as_array)
 
     async def play_game(self, game, msg):
         if game[0].lower() == 'blackjack':

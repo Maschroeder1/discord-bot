@@ -10,7 +10,7 @@ def setup():
 
 def main():
     config = setup()
-    events = Events(config['apiKey'])
+    Events(config['apiKey'])
 
 
 if __name__ == "__main__":
